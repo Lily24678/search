@@ -9,7 +9,7 @@
 什么是词性标注？
 词性标注（part-of-speech tagging）,又称为词类标注或者简称标注，是指为分词结果中的每个单词标注一个正确的词性的程序，也即确定每个词是名词、动词、形容词或者其他词性的过程。
 6. refine(org.apdplat.word.segmentation.WordRefiner)
-7、同义标注(org.apdplat.word.tagging.SynonymTagging)、反义标注(org.apdplat.word.tagging.AntonymTagging)、拼音标注(org.apdplat.word.tagging.PinyinTagging)
+7. 同义标注(org.apdplat.word.tagging.SynonymTagging)、反义标注(org.apdplat.word.tagging.AntonymTagging)、拼音标注(org.apdplat.word.tagging.PinyinTagging)
 8. **自定义配置word.local.conf，默认配置word.conf**
 
 
