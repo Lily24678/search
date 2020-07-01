@@ -16,3 +16,4 @@
 ## 遗留问题
 1. word.conf 配置文件中：是否使用redis的发布订阅服务来实时检测HTTP资源变更。问题是：如何使用？
 2. Ngram 语言模型 是怎么计算的？
+3. 和Lucene、 Solr、 ElasticSearch的集成 ？
