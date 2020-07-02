@@ -14,7 +14,7 @@
 9. 词频统计
 10. 文本相似度
 11. 判定句子是有意义的人话的可能性
-8. **自定义配置word.local.conf，默认配置word.conf**
+12. **自定义配置word.local.conf，默认配置word.conf**
 
 
 ## 遗留问题
