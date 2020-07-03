@@ -6,13 +6,36 @@
 	<artifactId>search</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>search</name>
-	<description>word 中文分词组件</description>
+	<description>lucene 全文检索引擎工具包</description>
 
 	<dependencies>
+
+		<!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-analyzers-common -->
 		<dependency>
-			<groupId>org.apdplat</groupId>
-			<artifactId>word</artifactId>
-			<version>1.2</version>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-analyzers-common</artifactId>
+			<version>8.5.2</version>
 		</dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-analyzers-smartcn -->
+<!-- <dependency>
+    <groupId>org.apache.lucene</groupId>
+    <artifactId>lucene-analyzers-smartcn</artifactId>
+    <version>8.5.2</version>
+</dependency> -->
+<!-- https://mvnrepository.com/artifact/com.jianggujin/IKAnalyzer-lucene -->
+<!-- <dependency>
+    <groupId>com.jianggujin</groupId>
+    <artifactId>IKAnalyzer-lucene</artifactId>
+    <version>8.0.0</version>
+</dependency> -->
+
+<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+<dependency>
+    <groupId>commons-io</groupId>
+    <artifactId>commons-io</artifactId>
+    <version>2.7</version>
+</dependency>
+
+
 	</dependencies>
 </project>
