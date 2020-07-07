@@ -24,18 +24,20 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apdplat.word.lucene.ChineseWordAnalyzer;
 import org.junit.jupiter.api.Test;
 
 public class LuceneFirst {
+	
 
 	//创建索引库
 	@Test
 	public void createIndex() throws Exception {
 		//1、指定索引库存放的位置，可以是内存也可以是磁盘
-		Directory directory = FSDirectory.open(new File("F:/temp/lucene/index").toPath());
+		Directory directory = FSDirectory.open(new File("F:/Demo/temp/lucene/index"));
 		//2、创建一个IndexWriter对象。需要一个分析器对象。
 		Analyzer analyzer = new StandardAnalyzer();
-		IndexWriterConfig conf = new IndexWriterConfig(analyzer);//此时在F:/temp/lucene/index下会创建文件write.lock
+		IndexWriterConfig conf = new IndexWriterConfig(null, analyzer);//此时在F:/Demo/temp/lucene/index下会创建文件write.lock
 		//参数1：索引库存放的路径 参数2：配置信息，其中包含分析器对象
 		IndexWriter indexWriter = new IndexWriter(directory, conf);
 		//3、创建文档
@@ -48,6 +50,7 @@ public class LuceneFirst {
 		indexWriter.addDocument(doc);
 		//6、关闭IndexWriter对象
 		indexWriter.close();
+		
 
 	}
 	
@@ -55,7 +58,7 @@ public class LuceneFirst {
 	@Test
 	public void searchIndex1() throws Exception {
 		//1、知道索引库的位置
-		FSDirectory directory = FSDirectory.open(new File("F:/temp/lucene/index").toPath());
+		FSDirectory directory = FSDirectory.open(new File("F:/Demo/temp/lucene/index"));
 		//2、使用IndexReader对象打开索引库
 		IndexReader indexReader = DirectoryReader.open(directory);
 		//3、创建IndexSearcher对象
@@ -79,7 +82,7 @@ public class LuceneFirst {
 	@Test
 	public void searchIndex() throws Exception {
 		//1指定索引库存放的位置
-		Directory directory = FSDirectory.open(new File("F:/Demo/temp/lucene/index").toPath());
+		Directory directory = FSDirectory.open(new File("F:/Demo/temp/lucene/index"));
 		//2使用IndexReader对象打开索引库
 		IndexReader indexReader = DirectoryReader.open(directory);
 		//3创建一个IndexSearcher对象，构造方法需要一个indexReader对象
@@ -113,13 +116,15 @@ public class LuceneFirst {
 	@Test
 	public void testAnanlyzer() throws Exception {
 		//创建一个分析器对象
-		Analyzer analyzer = new StandardAnalyzer();
-		//Analyzer analyzer = new CJKAnalyzer();
+//		Analyzer analyzer = new StandardAnalyzer();
+//		Analyzer analyzer = new CJKAnalyzer();
 //		Analyzer analyzer = new SmartChineseAnalyzer();
+//		Analyzer analyzer = new IKAnalyzer();
+		Analyzer analyzer = new ChineseWordAnalyzer();
 		//从分析器对象中获得tokenStream对象
 		//参数1：域的名称，可以为null或者""
 		//参数2：要分析的文本内容
-		TokenStream tokenStream = analyzer.tokenStream("", "高富帅白富美蒋泽明数据库中存储的数据是高富帅结构化数据传智播客，即行数据java，可以用二维表结构来逻辑表达实现的数据。");
+		TokenStream tokenStream = analyzer.tokenStream("", "梦幻诛仙高富帅白富美蒋泽明数据库中存储的数据是高富帅结构化数据传智播客，即行数据java，可以用二维表结构来逻辑表达实现的数据。");
 		//设置一个引用，引用可以有多种类型，可以是关键词的引用、偏移量的引用
 		CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
 		//偏移量
@@ -128,13 +133,16 @@ public class LuceneFirst {
 		tokenStream.reset();
 		//使用while循环变量单词列表
 		while (tokenStream.incrementToken()) {
-			System.out.println("start->" + offsetAttribute.startOffset());
-			//打印单词
-			System.out.println(charTermAttribute);
-			System.out.println("end->" + offsetAttribute.endOffset());
+//			System.out.println("start->" + offsetAttribute.startOffset());
+//			//打印单词
+//			System.out.println(charTermAttribute);
+//			System.out.println("end->" + offsetAttribute.endOffset());
+			System.out.print(charTermAttribute+" ,");
 		}
+		System.out.println();
 		//关闭tokenStream
 		tokenStream.close();
+	
 	}
 }
 
