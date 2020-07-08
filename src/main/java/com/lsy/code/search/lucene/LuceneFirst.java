@@ -1,15 +1,21 @@
 package com.lsy.code.search.lucene;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.cjk.CJKAnalyzer;
+import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -17,132 +23,134 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apdplat.word.lucene.ChineseWordAnalyzer;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.wltea.analyzer.lucene.IKAnalyzer;
 
 public class LuceneFirst {
+	private String indexlibDir="F:/Demo/temp/lucene/index";//索引库的位置
+	private String sourceDir="F:/Demo/temp/file/file";//原始文档的位置
 	
-
-	//创建索引库
+	/**
+	 * 	创建索引库
+	 * @throws IOException 
+	 */
 	@Test
-	public void createIndex() throws Exception {
-		//1、指定索引库存放的位置，可以是内存也可以是磁盘
-		Directory directory = FSDirectory.open(new File("F:/Demo/temp/lucene/index"));
-		//2、创建一个IndexWriter对象。需要一个分析器对象。
-		Analyzer analyzer = new StandardAnalyzer();
-		IndexWriterConfig conf = new IndexWriterConfig(null, analyzer);//此时在F:/Demo/temp/lucene/index下会创建文件write.lock
-		//参数1：索引库存放的路径 参数2：配置信息，其中包含分析器对象
-		IndexWriter indexWriter = new IndexWriter(directory, conf);
-		//3、创建文档
-		Document doc = new Document();
-		//4、向文档中添加域
-		String fileContent = FileUtils.readFileToString(new File("F:/temp/template/春.txt"), "UTF-8");
-		TextField textField = new TextField("content", fileContent, Store.YES);
-		doc.add(textField);
-		//5、把文档对象写入索引库
-		indexWriter.addDocument(doc);
-		//6、关闭IndexWriter对象
+	public void createIndexlib() throws IOException {
+		//指定索引库的位置
+		Directory dir = FSDirectory.open(new File(indexlibDir).toPath());
+		//创建IndexWriter对象
+		IndexWriter indexWriter = new IndexWriter(dir, new IndexWriterConfig());//IndexWriterConfig 若不指定Analyzer,默认是StandardAnalyzer
+		//使用IndexWriter对象将Document对象写入索引库，此过程进行索引创建。并将索引和Document对象写入索引库。
+		writeTOIndexlib(indexWriter);
+		//关闭IndexWriter对象
 		indexWriter.close();
-		
+	}
+	
+	/**
+	 *	 查询索引
+	 * @throws IOException 
+	 */
+	@Test
+	public void searchIndex() throws IOException {
+		//需知道索引库的位置
+		Directory dir = FSDirectory.open(new File(indexlibDir).toPath());
+		//创建IndexReader对象
+		IndexReader indexReader = DirectoryReader.open(dir);
+		//创建IndexSearcher对象
+		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+		//开始执行查询,获取查询结果并对结果进行处理
+		executeQuery(indexSearcher);
+		//关闭IndexReader对象
+		indexReader.close();
+	}
+	
+	/**
+	 *	 查看各种分词器的分词效果
+	 * @throws IOException 
+	 */
+	@Test
+	public void analyzerResult() throws IOException {
+		//创建分词器
+		analyzerResult(new StandardAnalyzer());
+		analyzerResult(new CJKAnalyzer());
+		analyzerResult(new SmartChineseAnalyzer());
+		analyzerResult(new IKAnalyzer());
+	}
 
-	}
-	
-	//查询索引
-	@Test
-	public void searchIndex1() throws Exception {
-		//1、知道索引库的位置
-		FSDirectory directory = FSDirectory.open(new File("F:/Demo/temp/lucene/index"));
-		//2、使用IndexReader对象打开索引库
-		IndexReader indexReader = DirectoryReader.open(directory);
-		//3、创建IndexSearcher对象
-		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-		//4、获取查询结果
-		Query query = new MatchAllDocsQuery();
-		TopDocs topDocs = indexSearcher.search(query, 10);
-		//5、处理查询的结果
-		for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-			//取文档id
-			int id = scoreDoc.doc;
-			//从索引库中取文档对象
-			Document document = indexSearcher.doc(id);
-			System.out.println(document.get("content"));
-		}
-		//6、关闭IndexReader对象
-		indexReader.close();
-	}
-	
-	//查询索引
-	@Test
-	public void searchIndex() throws Exception {
-		//1指定索引库存放的位置
-		Directory directory = FSDirectory.open(new File("F:/Demo/temp/lucene/index"));
-		//2使用IndexReader对象打开索引库
-		IndexReader indexReader = DirectoryReader.open(directory);
-		//3创建一个IndexSearcher对象，构造方法需要一个indexReader对象
-		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-		//4创建一个查询对象,需要指定查询域及要查询的关键字。
-		//term的参数1：要搜索的域 参数2：搜索的关键字
-		Query query = new TermQuery(new Term("content", "spring"));
-		System.out.println(query);
-		//参数1：查询条件 参数2：查询结果返回的最大值
-		//5取查询结果
-		TopDocs topDocs = indexSearcher.search(query, 10);
-		//取查询结果总记录数
-		System.out.println("查询结果总记录数："  + topDocs.totalHits);
-		//6遍历查询结果并打印.
-		for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-			//取文档id
-			int id = scoreDoc.doc;
-			//从索引库中取文档对象
-			Document document = indexSearcher.doc(id);
-			//取属性
-			System.out.println(document.get("name"));
-			System.out.println(document.get("size"));
-			System.out.println(document.get("content"));
-			System.out.println(document.get("path"));
-		}
-		//7关闭IndexReader对象
-		indexReader.close();
-	}
-	
-	//查看分析器的分词效果
-	@Test
-	public void testAnanlyzer() throws Exception {
-		//创建一个分析器对象
-//		Analyzer analyzer = new StandardAnalyzer();
-//		Analyzer analyzer = new CJKAnalyzer();
-//		Analyzer analyzer = new SmartChineseAnalyzer();
-//		Analyzer analyzer = new IKAnalyzer();
-		Analyzer analyzer = new ChineseWordAnalyzer();
-		//从分析器对象中获得tokenStream对象
-		//参数1：域的名称，可以为null或者""
-		//参数2：要分析的文本内容
-		TokenStream tokenStream = analyzer.tokenStream("", "梦幻诛仙高富帅白富美蒋泽明数据库中存储的数据是高富帅结构化数据传智播客，即行数据java，可以用二维表结构来逻辑表达实现的数据。");
+	/**
+	 * 	查看分词器的分词效果
+	 * @throws IOException 
+	 */
+	private void analyzerResult(Analyzer analyzer) throws IOException {
+		//从分析器对象中获得TokenStream对象
+		TokenStream tokenStream = analyzer.tokenStream("", "荷塘月色出自朱自清。朱自清（1898年11月22日—1948年8月12日），原名自华，号秋实 [1-4]  ，后改名自清，字佩弦。原籍浙江绍兴，出生于江苏省东海县（今连云港市东海县平明镇），后随父定居扬州。中国现代散文家、诗人、学者、民主战士 。");
 		//设置一个引用，引用可以有多种类型，可以是关键词的引用、偏移量的引用
 		CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
-		//偏移量
 		OffsetAttribute offsetAttribute = tokenStream.addAttribute(OffsetAttribute.class);
-		//调用tokenStream的reset方法
+		//调用TokenStream的reset方法
 		tokenStream.reset();
-		//使用while循环变量单词列表
+		//循环变量单词列表
 		while (tokenStream.incrementToken()) {
-//			System.out.println("start->" + offsetAttribute.startOffset());
-//			//打印单词
-//			System.out.println(charTermAttribute);
-//			System.out.println("end->" + offsetAttribute.endOffset());
-			System.out.print(charTermAttribute+" ,");
+			System.out.print("start->"+offsetAttribute.startOffset()+"[ "+charTermAttribute+" ]"+"end->" + offsetAttribute.endOffset());
+			System.out.print("[ "+charTermAttribute+" ]");
 		}
-		System.out.println();
-		//关闭tokenStream
+		//关闭TokenStream对象
 		tokenStream.close();
+		
+		System.out.println();
+	}
 	
+	
+	/**
+	 *	 开始执行查询,获取查询结果并对结果进行处理
+	 * @param indexSearcher
+	 * @throws IOException
+	 */
+	private void executeQuery(IndexSearcher indexSearcher) throws IOException {
+		Query query = new TermQuery(new Term("name", "背影"));
+		TopDocs docs = indexSearcher.search(query, 10);
+		System.out.println("查询结果总记录数："  + docs.totalHits);
+		System.out.println("docID\t name\t path\t length\t content");
+		for (ScoreDoc scoreDoc: docs.scoreDocs) {
+			//获取文档ID
+			int docID = scoreDoc.doc;
+			//从索引库中取文档对象
+			Document doc = indexSearcher.doc(docID);
+			System.out.println(docID+"\t"+doc.get("name")+"\t"+doc.get("path")+"\t"+doc.get("length")+"\t"+doc.get("content"));
+		}
+	}
+	
+	/**
+	 * 	使用IndexWriter对象将Document对象写入索引库，此过程进行索引创建。并将索引和Document对象写入索引库。
+	 * @param indexWriter 
+	 * @param doc
+	 * @throws IOException 
+	 */
+	private void writeTOIndexlib(IndexWriter indexWriter) throws IOException {
+		//创建Field对象,并将Field对象加入添加到Document对象中
+		File file = new File(sourceDir);
+		if (file.exists()&&file.isDirectory()) {
+			File[] files = file.listFiles();
+			for (File file2 : files) {
+				Document doc = new Document();
+				//文件名和文件内容需要被分词及索引但不需要展示,需要展示的是文件位置和文件长度
+				Field content = new TextField("content", FileUtils.readFileToString(file2, "UTF-8"), Store.NO);
+				Field name = new StringField("name", file2.getName().replace(".txt", ""), Store.YES);
+				Field path = new StoredField("path", file2.getAbsolutePath());
+				Field length = new StoredField("length", file2.length());
+				doc.add(content);
+				doc.add(name);
+				doc.add(path);
+				doc.add(length);
+				//将索引和Document对象写入索引库
+				indexWriter.addDocument(doc);
+			}
+		}
 	}
 }
-
