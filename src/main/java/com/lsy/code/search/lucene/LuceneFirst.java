@@ -66,7 +66,8 @@ public class LuceneFirst {
 		//创建IndexSearcher对象
 		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
 		//开始执行查询,获取查询结果并对结果进行处理
-		executeQuery(indexSearcher);
+		Query query = new TermQuery(new Term("content", "父亲"));
+		executeQuery(indexSearcher,query);
 		//关闭IndexReader对象
 		indexReader.close();
 	}
@@ -113,8 +114,7 @@ public class LuceneFirst {
 	 * @param indexSearcher
 	 * @throws IOException
 	 */
-	private void executeQuery(IndexSearcher indexSearcher) throws IOException {
-		Query query = new TermQuery(new Term("content", "父亲"));
+	private void executeQuery(IndexSearcher indexSearcher,Query query) throws IOException {
 		TopDocs docs = indexSearcher.search(query, 10);
 		System.out.println("查询结果总记录数："  + docs.totalHits);
 		System.out.println("docID\t name\t path\t length\t content");
