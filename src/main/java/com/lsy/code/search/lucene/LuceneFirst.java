@@ -14,6 +14,7 @@ import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
@@ -143,11 +144,13 @@ public class LuceneFirst {
 				Field content = new TextField("content", FileUtils.readFileToString(file2, "UTF-8"), Store.NO);
 				Field name = new StringField("name", file2.getName().replace(".txt", ""), Store.YES);
 				Field path = new StoredField("path", file2.getAbsolutePath());
-				Field length = new StoredField("length", file2.length());
+				Field size2 = new StoredField("size", file2.length());
+				Field size = new LongPoint("size", file2.length());
 				doc.add(content);
 				doc.add(name);
 				doc.add(path);
-				doc.add(length);
+				doc.add(size);
+				doc.add(size2);
 				//将索引和Document对象写入索引库
 				indexWriter.addDocument(doc);
 			}
