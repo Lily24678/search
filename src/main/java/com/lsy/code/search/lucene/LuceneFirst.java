@@ -66,8 +66,7 @@ public class LuceneFirst {
 		//创建IndexSearcher对象
 		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
 		//开始执行查询,获取查询结果并对结果进行处理
-		Query query = new TermQuery(new Term("content", "父亲"));
-		executeQuery(indexSearcher,query);
+		executeQuery(indexSearcher,new TermQuery(new Term("content", "父亲")));
 		//关闭IndexReader对象
 		indexReader.close();
 	}
