@@ -35,6 +35,7 @@ import org.wltea.analyzer.lucene.IKAnalyzer;
 public class LuceneFirst {
 	private String indexlibDir="F:/Demo/temp/lucene/index";//索引库的位置
 	private String sourceDir="F:/Demo/temp/file/file";//原始文档的位置
+	private Analyzer analyzer= new SmartChineseAnalyzer();//索引和搜索时使用的分析器
 	
 	/**
 	 * 	创建索引库
@@ -45,7 +46,7 @@ public class LuceneFirst {
 		//指定索引库的位置
 		Directory dir = FSDirectory.open(new File(indexlibDir).toPath());
 		//创建IndexWriter对象
-		IndexWriter indexWriter = new IndexWriter(dir, new IndexWriterConfig());//IndexWriterConfig 若不指定Analyzer,默认是StandardAnalyzer
+		IndexWriter indexWriter = new IndexWriter(dir, new IndexWriterConfig(analyzer));//IndexWriterConfig 若不指定Analyzer,默认是StandardAnalyzer
 		//使用IndexWriter对象将Document对象写入索引库，此过程进行索引创建。并将索引和Document对象写入索引库。
 		writeTOIndexlib(indexWriter);
 		//关闭IndexWriter对象
@@ -113,7 +114,7 @@ public class LuceneFirst {
 	 * @throws IOException
 	 */
 	private void executeQuery(IndexSearcher indexSearcher) throws IOException {
-		Query query = new TermQuery(new Term("name", "背影"));
+		Query query = new TermQuery(new Term("content", "父亲"));
 		TopDocs docs = indexSearcher.search(query, 10);
 		System.out.println("查询结果总记录数："  + docs.totalHits);
 		System.out.println("docID\t name\t path\t length\t content");
