@@ -9,3 +9,7 @@
 > - 创建索引
 > - 删除索引
 > - 修改索引库
+
+### LuceneThree Lucene的两种查询方法
+> 1. 使用Query的子类进行查询
+> 2. 使用QueryParser查询
