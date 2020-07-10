@@ -15,7 +15,9 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.junit.Test;
-
+/**
+ * 索引库的维护
+ */
 public class LuceneSecond {
 	private String indexlibDir="F:/Demo/temp/lucene/index";//索引库的位置
 	private Analyzer analyzer= new SmartChineseAnalyzer();//索引和搜索时使用的分析器
