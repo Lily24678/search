@@ -10,6 +10,7 @@ import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanQuery;
@@ -46,6 +47,8 @@ public class LuceneThree {
 		builder.add(new TermQuery(new Term("content", "父亲")),Occur.MUST);
 		builder.add(LongPoint.newRangeQuery("size", 2000l, 4009l),Occur.MUST);
 		executeQuery(getIndexSearcher(), builder.build());
+		//打印Query的查询语法
+		System.out.println(builder.build());
 	}
 	
 	/**
@@ -55,9 +58,22 @@ public class LuceneThree {
 	 */
 	@Test
 	public void searchIndex2() throws ParseException, IOException {
+		//创建一个QueryParser对象。参数1：默认搜索域 参数2：分析器对象。
 		QueryParser queryParser = new QueryParser("content", analyzer);
-		Query query = queryParser.parse("父亲荷塘月色");
+		Query query = queryParser.parse("content:父亲 name:匆匆");
 		executeQuery(getIndexSearcher(), query);
+		//打印Query的查询语法
+		System.out.println(query);
+		
+		
+		//指定多个默认搜索域
+		String[] fields= {"name","content"};
+		//创建一个QueryParser对象。参数1：默认搜索域 参数2：分析器对象
+		MultiFieldQueryParser queryParser2 = new MultiFieldQueryParser(fields, analyzer);
+		Query query2 = queryParser2.parse("name:父亲荷塘月色匆匆");
+		executeQuery(getIndexSearcher(), query2);
+		//打印Query的查询语法
+		System.out.println(query2);
 	}
 	
 	
