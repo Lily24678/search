@@ -32,7 +32,9 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.junit.Test;
 import org.wltea.analyzer.lucene.IKAnalyzer;
-
+/**
+ * Lucene的入门操作
+ */
 public class LuceneFirst {
 	private String indexlibDir="F:/Demo/temp/lucene/index";//索引库的位置
 	private String sourceDir="F:/Demo/temp/file/file";//原始文档的位置
