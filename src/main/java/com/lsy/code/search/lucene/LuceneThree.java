@@ -13,15 +13,17 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.BooleanQuery.Builder;
+import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.junit.Test;
@@ -40,8 +42,12 @@ public class LuceneThree {
 	public void searchIndex1() throws IOException {
 		//TermQuery 不使用分析器，精确查询
 		executeQuery(getIndexSearcher(), new TermQuery(new Term("content", "父亲")));
-		//MatchAllDocsQuery查询索引目录中的所有文档
+		//MatchAllDocsQuery查询索引目录中的所有文档; 查询所有的文档， 语法： *:*
 		executeQuery(getIndexSearcher(), new MatchAllDocsQuery());
+		//模糊查询FuzzyQuery;能够矫正的次数 只能在 0到2 之间
+		executeQuery(getIndexSearcher(), new FuzzyQuery(new Term("content", "父亲"),2));
+		//通配符查询WildcardQuery;*匹配多个字符,?匹配单个字符
+		executeQuery(getIndexSearcher(), new WildcardQuery(new Term("content", "*父亲")));
 		//根据数值范围查询
 		executeQuery(getIndexSearcher(), LongPoint.newRangeQuery("size", 2000l, 4500l));
 		//组合查询条件
